@@ -2,21 +2,23 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
                   
-Future <Questions> fetchQuestions() async {
+Future <QuestionList> fetchQuestions() async {
+  print("get");
   final response =  
-    await http.get('http://localhost/quiz-app/public/api/v1/questions');
+    await http.get('https://my-json-server.typicode.com/shqipesejdiu/demo/questions');
   if(response.statusCode == 200){
-    return Questions.fromJson(json.decode(response.body));
+    print("get1");
+    return QuestionList.fromJson(json.decode(response.body));
   }else{
     throw Exception('Filed to load post');
   }
 }
 
 class Question{
-  final String id;
-  final String question;
+  final id;
+  final question;
   final List answers;
-  final String category;
+  final category;
 
   Question({this.id, this.question, this.answers, this.category});
 
@@ -37,16 +39,16 @@ class Question{
     return m;
   }
 }
-class Questions{
+class QuestionList{
   final List<Question> questions;
 
-  Questions({this.questions});
+  QuestionList({this.questions});
 
-  factory Questions.fromJson(List<dynamic> parsedJson){
+  factory QuestionList.fromJson(List<dynamic> parsedJson){
     List<Question> questions = new List<Question>();
     questions = parsedJson.map((i) => Question.fromJsons(i)).toList();
 
-    return new Questions(questions: questions);
+    return new QuestionList(questions: questions);
   }
   toJsonEncodable(){
     return questions.map((question){

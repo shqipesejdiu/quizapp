@@ -32,7 +32,7 @@ class QuizAppState extends State<QuizApp>{
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: QuestionScreenState(),
+      home: HomeScreenState(),
     );
   }
 }
