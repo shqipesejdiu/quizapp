@@ -3,11 +3,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
                   
 Future <QuestionList> fetchQuestions() async {
-  print("get");
   final response =  
     await http.get('https://my-json-server.typicode.com/shqipesejdiu/demo/questions');
   if(response.statusCode == 200){
-    print("get1");
     return QuestionList.fromJson(json.decode(response.body));
   }else{
     throw Exception('Filed to load post');

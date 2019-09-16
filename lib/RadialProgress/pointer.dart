@@ -1,26 +1,37 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'dart:ui';
-class HomeContent extends StatefulWidget {
+import 'package:shared_preferences/shared_preferences.dart';
+class CountQuestions extends StatefulWidget {
+  final int questionId;
+  CountQuestions({Key key, @required this.questionId}) : super(key: key);
   @override
-  _HomeContentState createState() => _HomeContentState();
+  _CountQuestionsState createState() => _CountQuestionsState();
 }
 
-class _HomeContentState extends State<HomeContent> with TickerProviderStateMixin {
+class _CountQuestionsState extends State<CountQuestions> with TickerProviderStateMixin {
 
-  double percentage = 0.0;
-  double newPercentage = 0.0;
+  static double percentage = 0.0;
+  static double newPercentage = 0.0;
   AnimationController percentageAnimationController;
-
+  Future<SharedPreferences> sprefs = SharedPreferences.getInstance();
+  int countQuestions;
+  Future getNumber() async{
+    final prefs = await sprefs;
+    return prefs.getString("countQuestions");
+  }
   @override
   void initState() {
     super.initState();
+    getNumber().then((value){
+      countQuestions = int.parse(value);
+      pressedButton();
+    });
     setState(() {
         percentage = 0.0;
     });
-
     percentageAnimationController = new AnimationController(
-        vsync: this,
+      vsync: this,
       duration: new Duration(milliseconds: 1000)
     )
     ..addListener((){
@@ -28,7 +39,17 @@ class _HomeContentState extends State<HomeContent> with TickerProviderStateMixin
         percentage = lerpDouble(percentage,newPercentage,percentageAnimationController.value);
       });
     });
-
+  }
+  pressedButton(){
+    setState(() {
+      percentage = newPercentage;
+      newPercentage += 100/countQuestions;
+      if(newPercentage>100.0){
+        percentage=0.0;
+        newPercentage=0.0;
+      }
+      percentageAnimationController.forward(from: 0.0);
+    });
   }
 
   @override
@@ -39,31 +60,21 @@ class _HomeContentState extends State<HomeContent> with TickerProviderStateMixin
       width: 150.0,
       child: new CustomPaint(
         foregroundPainter: new MyPainter(
-            lineColor: Colors.purple[900],
-            completeColor: Colors.green,
-            completePercent: percentage,
-            width: 8.0
+          lineColor: Colors.purple[900],
+          completeColor: Colors.green,
+          completePercent: percentage,
+          width: 8.0
         ),
         child: new Padding(
           padding: const EdgeInsets.all(0.0),
           child: new RaisedButton(
-              padding: EdgeInsets.all(20.0),
-              color: Colors.purple[900],
-              splashColor: Colors.green,
-              shape: new CircleBorder(),
-              child: new Text("10",style: TextStyle(color: Colors.white,fontSize: 19)),
-              onPressed: (){
-                setState(() {
-                    percentage = newPercentage;
-                    newPercentage += 10;
-                    if(newPercentage>100.0){
-                      percentage=0.0;
-                      newPercentage=0.0;
-                    }
-                    percentageAnimationController.forward(from: 0.0);
-                });
+            padding: EdgeInsets.all(20.0),
+            color: Colors.purple[900],
+            splashColor: Colors.green,
+            shape: new CircleBorder(),
+            child: new Text("${widget.questionId}",style: TextStyle(color: Colors.white,fontSize: 19)),
 
-              }),
+          ),
         ),
       ),
     );

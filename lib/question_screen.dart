@@ -1,14 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:fluttery_audio/fluttery_audio.dart';
+import 'package:quizapp/api/questions_api.dart';
+import 'package:quizapp/final_screen.dart';
+import 'package:quizapp/home_screen.dart';
 import 'package:video_player/video_player.dart';
 import 'RadialProgress/pointer.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class QuestionScreenState extends StatefulWidget{
+  final Question question;
+  QuestionScreenState({Key key, @required this.question}) : super(key: key);
   QuestionScreen createState() => QuestionScreen();
 }
 class QuestionScreen extends State<QuestionScreenState>{
+  static var page = 1;
   VideoPlayerController _videoController;
-  
+  String answerChecked = "";
+  int correctAnswer;
+  static int countCorrectAnswers = 0;
+  Future<SharedPreferences> sprefs = SharedPreferences.getInstance();
+  int countQuestions;
+  Future getNumber() async{
+    final prefs = await sprefs;
+    return prefs.getString("countQuestions");
+  }
+  @override
+  void initState() {
+    super.initState();
+
+    getNumber().then((value) {
+      countQuestions = int.parse(value);
+      print("countQuestions$countQuestions");
+    });
+
+    print("page$page");
+  }
   getVideo(url){
     setState(() {
       _videoController = VideoPlayerController.network(
@@ -25,7 +51,7 @@ class QuestionScreen extends State<QuestionScreenState>{
     // method answer contain answer and category
     answer(answer, category){
       switch (category){
-        case "text" :
+        case "Text" :
           return Text(answer);
           break;
         case "image" :
@@ -83,12 +109,12 @@ class QuestionScreen extends State<QuestionScreenState>{
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            Text("User-Name",
+                            Text("User Name",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold
                             )),
-                            Text("User-points",
+                            Text("User points",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold
@@ -98,7 +124,7 @@ class QuestionScreen extends State<QuestionScreenState>{
                       ),
                       //Image for question number and a circle 
                       Expanded(
-                        child: HomeContent(),
+                        child: CountQuestions(questionId:page),
                       )
                     ],
                   ),
@@ -122,17 +148,19 @@ class QuestionScreen extends State<QuestionScreenState>{
                               children: <Widget>[
                                 Container(
                                   padding: EdgeInsets.all(10),
-                                  child: Text("Soccer"),
+                                  child: Text(""),
+//                                  child: Text("Soccer"),
                                 ),
                                 Container(
                                   padding: EdgeInsets.all(10),
-                                  child: Text("Points"),
+                                  child: Text(""),
+//                                  child: Text("Points"),
                                 )
                               ],
                             ),
                             Container(
                               padding: EdgeInsets.all(20),
-                              child: Text("Question: sfsdfdsf dsf dsf ds fds ds f dsf dsf",
+                              child: Text("Question: ${widget.question.question}",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 30,
@@ -142,39 +170,58 @@ class QuestionScreen extends State<QuestionScreenState>{
                         ),
                       ),
                     ),
-                    // Expanded(
-                       GridView.count(
-                        shrinkWrap: true,
-                        crossAxisCount: 2,
-                        mainAxisSpacing: 1,
-                        childAspectRatio: 2,
-                        physics: NeverScrollableScrollPhysics(),
-                        children: List.generate(4,(index) => Stack(
-                          fit: StackFit.expand,
-                          children: <Widget>[
-                            Card(
+                     GridView.count(
+                      shrinkWrap: true,
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 1,
+                      childAspectRatio: 2,
+                      physics: NeverScrollableScrollPhysics(),
+                      children: List.generate(widget.question.answers.length,(index) => Stack(
+                        fit: StackFit.expand,
+                        children: <Widget>[
+                          GestureDetector(
+                            onTap: (){
+                              setState(() {
+                                answerChecked = widget.question.answers[index]["answer"];
+                                correctAnswer = widget.question.answers[index]["correct_answer"];
+                              });
+                            },
+                            child: Card(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
                               margin: EdgeInsets.all(10),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(width: 2,color: Colors.green),
-                                    borderRadius: BorderRadius.all(Radius.circular(10))
-                                  ),
-                                alignment: Alignment.center,
-                                // child: Text("data"),
-                                child: answer("data", "text"),
-                              ),
-                            ),
-                             Positioned(
-                              right: 10,
-                              top: 10,
                               child: Container(
-                                child: Icon(Icons.check_circle,color: Colors.green),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    width: 2,
+                                    color: (answerChecked == widget.question.answers[index]["answer"])
+                                            ? Colors.green
+                                            : Colors.transparent
+                                  ),
+                                  borderRadius: BorderRadius.all(Radius.circular(10))
+                                ),
+                                alignment: Alignment.center,
+                                child: answer(widget.question.answers[index]["answer"], widget.question.answers[index]["category"]),
                               ),
                             ),
-                          ],
-                        ))
-                      )
-                    // )
+                          ),
+                           Positioned(
+                            right: 5,
+                            top: 5,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.all(Radius.circular(70))
+                              ),
+                              child: (answerChecked == widget.question.answers[index]["answer"])
+                                ? Icon(Icons.check_circle,color: Colors.green)
+                                : Container(),
+                            ),
+                          ),
+                        ],
+                      ))
+                    )
                   ],
                 )
               )
@@ -212,44 +259,134 @@ class QuestionScreen extends State<QuestionScreenState>{
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: <Widget>[
                       Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Icon(Icons.cached,size: 45,color: Colors.white),
-                            Text("Change Question",
-                              style: TextStyle(
-                                color: Colors.white,
-                            )),
-                          ],
+                        child: FutureBuilder<QuestionList>(
+                          future: fetchQuestions(),
+                          builder: (context,snapshot){
+                            if(snapshot.hasData){
+                              List<Question> questions = snapshot.data.questions;
+                              return GestureDetector(
+                                  onTap: (){
+                                    setState(() {
+                                      if(countQuestions == page){
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => new FinalScreenState(countQuestions:countCorrectAnswers),
+                                          ),
+                                        );
+                                      }else{
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => new QuestionScreenState(question:questions[page++]),
+                                          ),
+                                        );
+                                      }
+                                    });
+                                  },
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        Icon(Icons.cached,size: 45,color: Colors.white),
+                                        Text("Change Question",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                          )),
+                                      ],
+                                    ),
+                                  )
+                              );
+                            }else if(snapshot.hasError){
+                              return Container();
+                            }
+                            return Container();
+                          },
                         ),
                       ),
                       Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                          border: Border(left: BorderSide(width: 2,color: Colors.purple[800]),right: BorderSide(width: 2,color: Colors.purple[800])),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Icon(Icons.school,size: 45,color: Colors.white),
-                            Text("Remove One",
-                              style: TextStyle(
-                                color: Colors.white,
-                            )),
-                          ],
-                        ),
-                        ),
+                        child: GestureDetector(
+                          onTap: (){
+                            setState(() {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => new HomeScreenState(),
+                                ),
+                              );
+                            });
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border(left: BorderSide(width: 2,color: Colors.purple[800]),right: BorderSide(width: 2,color: Colors.purple[800])),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Icon(Icons.home,size: 45,color: Colors.white),
+                                Text("Home",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                  )),
+                              ],
+                            ),
+                          ),
+                        )
                       ),
                       Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Icon(Icons.schedule,size: 45,color: Colors.white),
-                            Text("sesdsd",
-                              style: TextStyle(
-                                color: Colors.white,
-                            )),
-                          ],
+                        child: FutureBuilder<QuestionList>(
+                          future: fetchQuestions(),
+                          builder: (context,snapshot){
+                            if(snapshot.hasData){
+                              List<Question> questions = snapshot.data.questions;
+                              return GestureDetector(
+                                onTap: (){
+                                  setState(() {
+                                    print(correctAnswer);
+                                    if (correctAnswer == 1){
+                                      countCorrectAnswers++;
+                                    }
+                                    if(correctAnswer!=null){
+                                      if(countQuestions == page){
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => new FinalScreenState(countQuestions:countCorrectAnswers),
+                                          ),
+                                        );
+                                      }else{
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => new QuestionScreenState(question:questions[page++]),
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  });
+                                },
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      Icon(Icons.arrow_forward_ios,size: 45,color: Colors.white),
+                                      Text((countQuestions == page)
+                                        ? "Finish"
+                                        : "Next",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                      )),
+                                    ],
+                                  ),
+                                )
+                              );
+                            }else if(snapshot.hasError){
+                              return Container();
+                            }
+                            return Container();
+                          },
                         ),
                       ),
                     ],

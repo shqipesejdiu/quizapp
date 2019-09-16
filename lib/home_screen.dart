@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:quizapp/question_screen.dart';
 import 'api/questions_api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreenState extends StatefulWidget{
   HomeScreen createState() => HomeScreen();
 }
 class HomeScreen extends State<HomeScreenState>{
+  Future<SharedPreferences> sprefs = SharedPreferences.getInstance();
+  void setNumber(data) async{
+    final prefs = await sprefs;
+    prefs.setString("countQuestions", data);
+  }
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
         body: Container(
-          // width: MediaQuery.of(context).size.width,
           child: Stack(
             fit: StackFit.expand,
             children: <Widget>[
@@ -21,7 +27,6 @@ class HomeScreen extends State<HomeScreenState>{
                 child: Container(
                   padding: EdgeInsets.only(left: 20),
                   height: 170,
-                  // alignment: Alignment.center,
                   color: Colors.purple,
                   child: Row(
                     children: <Widget>[
@@ -31,42 +36,46 @@ class HomeScreen extends State<HomeScreenState>{
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            Text("User-Name",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold
-                                )),
-                            Text("User-points",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold
-                                )),
+                            Text("User Name",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold
+                              )),
+                            Text("User points",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold
+                            )),
                           ],
                         ),
                       ),
-                      //Image for question number and a circle
-
                     ],
                   ),
                 ),
               ),
-
-              Positioned(
-//                alignment: Alignment.cen
-              top: 200,
-                left: 100,
-                child: Container(
+              Container(
+                  alignment: Alignment.center,
                   child: FutureBuilder<QuestionList>(
                     future: fetchQuestions(),
                     builder: (context,snapshot){
                       if(snapshot.hasData){
-                        print("hasData");
                         List<Question> questions = snapshot.data.questions;
-                        print(questions[0].answers.toString());
                         return RaisedButton(
-                          child: Text("Start Quiz"),
+                          padding: EdgeInsets.fromLTRB(40,15,40,15),
+                          color: Colors.purple[700],
+                          child: Text("START QUIZ",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20
+                            )),
                           onPressed: (){
-                            print(questions[0].id.toString());
+                            setNumber(questions.length.toString());
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => new QuestionScreenState(question:questions.first),
+                              ),
+                            );
                           },
                         );
                       }else if(snapshot.hasError){
@@ -75,7 +84,7 @@ class HomeScreen extends State<HomeScreenState>{
                       return Container();
                     },
                   ),
-                )
+
               )
             ],
           ),
@@ -114,39 +123,51 @@ class HomeScreen extends State<HomeScreenState>{
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            Icon(Icons.cached,size: 45,color: Colors.white),
+                            Icon(Icons.cached,size: 45,color: Colors.transparent),
                             Text("Change Question",
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: Colors.transparent,
                                 )),
                           ],
                         ),
                       ),
                       Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border(left: BorderSide(width: 2,color: Colors.purple[800]),right: BorderSide(width: 2,color: Colors.purple[800])),
+                        child: GestureDetector(
+                          onTap: (){
+                            setState(() {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => new HomeScreenState(),
+                                ),
+                              );
+                            });
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border(left: BorderSide(width: 2,color: Colors.purple[800]),right: BorderSide(width: 2,color: Colors.purple[800])),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Icon(Icons.home,size: 45,color: Colors.white),
+                                Text("Home",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                    )),
+                              ],
+                            ),
                           ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Icon(Icons.school,size: 45,color: Colors.white),
-                              Text("Remove One",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                  )),
-                            ],
-                          ),
-                        ),
+                        )
                       ),
                       Expanded(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            Icon(Icons.schedule,size: 45,color: Colors.white),
+                            Icon(Icons.schedule,size: 45,color: Colors.transparent),
                             Text("sesdsd",
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: Colors.transparent,
                                 )),
                           ],
                         ),
