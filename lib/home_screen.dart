@@ -35,13 +35,14 @@ class HomeScreen extends State<HomeScreenState>{
                         padding: EdgeInsets.fromLTRB(20,0,0,0),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Text("User Name",
+                            Text("Shqipe Sejdiu",
                               style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold
                               )),
-                            Text("User points",
+                            Text("Score: 80 points",
                             style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold
