@@ -1,4 +1,5 @@
-  import 'package:flutter/material.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/material.dart';
 import 'RadialProgress/pointer.dart';
 import 'home_screen.dart';
 
@@ -8,6 +9,7 @@ class FinalScreenState extends StatefulWidget{
   FinalScreen createState() => FinalScreen();
 }
 class FinalScreen extends State<FinalScreenState>{
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -33,13 +35,14 @@ class FinalScreen extends State<FinalScreenState>{
                         padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Text("User Name",
+                            Text("Shqipe Sejdiu",
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold
                                 )),
-                            Text("User points",
+                            Text("Score: 80 points",
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold
@@ -62,7 +65,8 @@ class FinalScreen extends State<FinalScreenState>{
                     children: <Widget>[
                       Text("THANK YOU"),
                       Text("YOU HAVE: ${widget.countQuestions} correct answers"),
-                      Text("YOU WON: ${widget.countQuestions *2} point")
+                      Text("YOU WON: ${widget.countQuestions *2} point"),
+
                     ],
                   ),
                   )
@@ -119,7 +123,7 @@ class FinalScreen extends State<FinalScreenState>{
                                 Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => new HomeScreenState(),
+                                    builder: (context) => new HomeScreen(),
                                   ),
                                 );
                               });

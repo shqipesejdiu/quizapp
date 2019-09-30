@@ -1,21 +1,47 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:quizapp/question_screen.dart';
 import 'api/questions_api.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-class HomeScreenState extends StatefulWidget{
-  HomeScreen createState() => HomeScreen();
+import 'package:shared_preferences/shared_preferences.dart';
+import 'auth/authentication.dart';
+
+class HomeScreen extends StatefulWidget{
+  final Map params;
+  final BaseAuth auth;
+  final VoidCallback onSignedOut;
+  final String userId;
+  HomeScreen({Key key, this.params, this.auth, this.userId, this.onSignedOut})
+      : super(key: key);
+
+  HomeScreenState createState() => HomeScreenState();
 }
-class HomeScreen extends State<HomeScreenState>{
+class HomeScreenState extends State<HomeScreen>{
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  signOut() async {
+    try {
+      await widget.auth.signOut();
+      widget.onSignedOut();
+    } catch (e) {
+      print(e);
+    }
+  }
+
   Future<SharedPreferences> sprefs = SharedPreferences.getInstance();
   void setNumber(data) async{
     final prefs = await sprefs;
     prefs.setString("countQuestions", data);
   }
+
+  final databaseReference = FirebaseDatabase.instance.reference();
+  void createRecord(){
+
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
+    return Scaffold(
         body: Container(
           child: Stack(
             fit: StackFit.expand,
@@ -29,27 +55,36 @@ class HomeScreen extends State<HomeScreenState>{
                   height: 170,
                   color: Colors.purple,
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Image.asset("images/person.png",width: 60,),
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(20,0,0,0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text("Shqipe Sejdiu",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold
-                              )),
-                            Text("Score: 80 points",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold
-                            )),
-                          ],
-                        ),
+                      Row(
+                        children: <Widget>[
+                          Image.asset("images/person.png",width: 60,),
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(20,0,0,0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text("Shqipe Sejdiu",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold
+                                    )),
+                                Text("Score: 80 points",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold
+                                    )),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
+                      new FlatButton(
+                          child: new Text('Logout',
+                              style: new TextStyle(fontSize: 17.0, color: Colors.white)),
+                          onPressed: signOut)
                     ],
                   ),
                 ),
@@ -70,19 +105,20 @@ class HomeScreen extends State<HomeScreenState>{
                               fontSize: 20
                             )),
                           onPressed: (){
-                            setNumber(questions.length.toString());
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => new QuestionScreenState(question:questions.first),
-                              ),
-                            );
+                            createRecord();
+//                            setNumber(questions.length.toString());
+//                            Navigator.push(
+//                              context,
+//                              MaterialPageRoute(
+//                                builder: (context) => new QuestionScreenState(question:questions.first),
+//                              ),
+//                            );
                           },
                         );
                       }else if(snapshot.hasError){
                         return Container();
                       }
-                      return Container();
+                      return Center(child: CircularProgressIndicator());
                     },
                   ),
 
@@ -139,7 +175,7 @@ class HomeScreen extends State<HomeScreenState>{
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => new HomeScreenState(),
+                                  builder: (context) => new HomeScreen(),
                                 ),
                               );
                             });
@@ -180,7 +216,6 @@ class HomeScreen extends State<HomeScreenState>{
             ],
           ),
         ),
-      ),
     );
   }
 }

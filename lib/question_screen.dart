@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fluttery_audio/fluttery_audio.dart';
+//import 'package:fluttery_audio/fluttery_audio.dart';
 import 'package:quizapp/api/questions_api.dart';
 import 'package:quizapp/final_screen.dart';
 import 'package:quizapp/home_screen.dart';
@@ -58,14 +58,15 @@ class QuestionScreen extends State<QuestionScreenState>{
           // return Image.network(answer);
           return Image.asset("images/person.png");
         case "audio" :
-          return Audio(
-            // audioUrl: answer,
-            audioUrl: "https://api.soundcloud.com/tracks/260578593/stream?secret_token=s-tj3IS&client_id=LBCcHmRB8XSStWL6wKH2HPACspQlXg2P",
-            playerBuilder: (BuildContext context, AudioPlayer player, Widget child) {
-              // player.loadMedia(Uri.parse(answer));
-              player.loadMedia(Uri.parse("https://api.soundcloud.com/tracks/260578593/stream?secret_token=s-tj3IS&client_id=LBCcHmRB8XSStWL6wKH2HPACspQlXg2P"));
-              player.play();
-          });
+          return Container();
+//          return Audio(
+//            // audioUrl: answer,
+//            audioUrl: "https://api.soundcloud.com/tracks/260578593/stream?secret_token=s-tj3IS&client_id=LBCcHmRB8XSStWL6wKH2HPACspQlXg2P",
+//            playerBuilder: (BuildContext context, AudioPlayer player, Widget child) {
+//              // player.loadMedia(Uri.parse(answer));
+//              player.loadMedia(Uri.parse("https://api.soundcloud.com/tracks/260578593/stream?secret_token=s-tj3IS&client_id=LBCcHmRB8XSStWL6wKH2HPACspQlXg2P"));
+//              player.play();
+//          });
           break;
         case "video" :
           getVideo(answer);
@@ -313,7 +314,7 @@ class QuestionScreen extends State<QuestionScreenState>{
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => new HomeScreenState(),
+                                  builder: (context) => new HomeScreen(),
                                 ),
                               );
                             });

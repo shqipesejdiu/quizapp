@@ -1,14 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:quizapp/rootpage.dart';
+import 'auth/authentication.dart';
 import 'splash_screen.dart';
 import 'home_screen.dart';
-import 'auth/forgot_password.dart';
 import 'question_screen.dart';
+
 void main() => runApp(QuizApp());
 
 class QuizApp extends StatefulWidget{
   QuizAppState createState() => QuizAppState();
 }
 class QuizAppState extends State<QuizApp>{
+
+  static const primarySwatch = Colors.purple;
+  // button color
+  static const buttonColor = Colors.purple;
+  // app name
+  static const appName = 'My App';
+  // boolean for showing home page if user unverified
+  static const homePageUnverified = false;
+
+  final params = {
+    'appName': appName,
+    'primarySwatch': primarySwatch,
+    'buttonColor': buttonColor,
+    'homePageUnverified': homePageUnverified,
+  };
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -16,7 +34,7 @@ class QuizAppState extends State<QuizApp>{
       initialRoute: '/',
       routes: {
         '/splash_screen': (context) => SplashScreenState(),
-        '/home': (context) => HomeScreenState(),
+        '/home': (context) => HomeScreen(),
       },
       //For animation SLideLeftRoute
       // onGenerateRoute: (RouteSettings settings) {
@@ -30,9 +48,9 @@ class QuizAppState extends State<QuizApp>{
       //   }
       // },
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: params['primarySwatch'],
       ),
-      home: HomeScreenState(),
+      home: RootPage(params: params, auth: new Auth()),
     );
   }
 }
