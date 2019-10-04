@@ -49,6 +49,7 @@ class QuizAppState extends State<QuizApp>{
       // },
       theme: ThemeData(
         primarySwatch: params['primarySwatch'],
+        fontFamily: "Inconsolata",
       ),
       home: RootPage(params: params, auth: new Auth()),
     );

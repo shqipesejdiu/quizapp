@@ -24,7 +24,11 @@ class _CountQuestionsState extends State<CountQuestions> with TickerProviderStat
   void initState() {
     super.initState();
     getNumber().then((value){
-      countQuestions = int.parse(value);
+      countQuestions = int.parse(value) +1;
+      if(widget.questionId ==1){
+        percentage = 0.0;
+        newPercentage = 0.0;
+      }
       pressedButton();
     });
     setState(() {
